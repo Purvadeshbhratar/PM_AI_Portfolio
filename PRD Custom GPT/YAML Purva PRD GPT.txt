@@ -1,0 +1,253 @@
+rubric_metadata:
+  context:
+    product: "AI-Driven Study Group Matchmaker for Campus Collaboration"
+    purpose: "Evaluate PRDs for a campus-based peer matching system that addresses fragmented communication"
+    scope: "This rubric is specific to this product domain; adapt criteria and weights for other product areas"
+  
+  mandatory_prd_sections:
+    - "Executive Summary / Problem Statement"
+    - "User Persona"
+    - "User Stories & Acceptance Criteria"
+    - "User Flow Diagrams"
+    - "Success Metrics (AARRR Funnel)"
+    - "Technical Requirements"
+    - "Scope Definition (In-Scope / Out-of-Scope)"
+  
+  scoring_process:
+    step1: "Evaluator assigns 1-4 score for each of the five criteria below"
+    step2: "Convert to percentage: 4=100%, 3=75%, 2=50%, 1=25%"
+    step3: "Apply weights: (Solution Quality × 0.40) + (Problem Definition × 0.25) + (Success Metrics × 0.15) + (Structure × 0.10) + (Communication × 0.10)"
+    step4: "Final score = weighted sum, expressed as percentage (0-100%)"
+    note: "Non-Standard scores (raw 1-4) are converted to Standard scores using this weighted formula"
+  
+  scoring_guidelines:
+    minimum_thresholds:
+      - "A score of 1 in either HIGH_WEIGHT criterion (Solution Quality OR Problem Definition) caps final grade at 60% maximum"
+      - "To achieve 80%+ overall, must score 3+ in BOTH HIGH_WEIGHT criteria"
+      - "Communication + Structure scores cannot compensate for failing HIGH_WEIGHT criteria"
+    
+    edge_cases:
+      - "If PRD excels in Problem Definition (4) but has scope creep (Solution Quality: 2), weighted formula applies: max ~65% final score"
+      - "If PRD has perfect scope (Solution Quality: 4) but weak problem (2), weighted formula applies: max ~70% final score"
+      - "Format innovations or non-standard approaches must be pre-approved; otherwise standard rubric applies strictly"
+    
+    inter_rater_calibration:
+      - "Use reference PRD samples (see Appendix A) as scoring anchors before evaluation"
+      - "Exemplar Level 4 PRD demonstrates all criteria; use for benchmark comparison"
+      - "Marginal Level 3 PRD shows where to draw the line between good and excellent"
+
+rubric:
+  Solution Quality & Scope (MVP): # HIGH_WEIGHT (40%)
+    4:
+      - "Minimalist feature set with zero scope creep - explicitly excludes: news feeds, social spam, multimedia chat, monetization, gamification, or any feature beyond core matchmaking"
+      - "Precision in writing testable, clear Acceptance Criteria using Given/When/Then format OR specific measurable outcomes (e.g., 'Given user selects CS101, When clicks Find Groups, Then sees 3-5 matches within 2 seconds')"
+      - "Creative and viable execution of core AI Matchmaker demonstrating innovation in matching logic, user experience, or problem-solving approach"
+      - "Strong focus on validating Problem-Solution Fit before scaling - includes pilot testing plans, success criteria for MVP validation, or iterative refinement approach"
+      - "User Stories follow clear intent/desire format with specific user value (e.g., 'As a [persona], I want to [action] so that [benefit]')"
+      - "All features directly address the identified persona's pain points with clear traceability"
+    
+    3:
+      - "Mostly minimalist feature set with 1-2 minor scope additions that don't fundamentally distract from core matchmaking"
+      - "Acceptance Criteria are testable with measurable outcomes but may lack Given/When/Then precision or miss some edge cases"
+      - "Viable execution of AI Matchmaker with moderate creativity - competent but not innovative"
+      - "Some consideration of Problem-Solution Fit validation mentioned but lacks detailed approach"
+      - "User Stories are structured with intent/desire elements but may lack specificity in benefits or user context"
+      - "Most features connect to persona pain points with minor gaps"
+    
+    2:
+      - "Includes several 'Out of Scope' features that dilute MVP focus (e.g., advanced chat, basic gamification elements, early analytics dashboards)"
+      - "Vague Acceptance Criteria that lack measurable outcomes (e.g., 'User should be able to find groups easily') - difficult to test objectively"
+      - "Basic execution of matchmaker without addressing specific persona needs or demonstrating understanding of core problem"
+      - "Weak or absent Problem-Solution Fit validation approach - jumps to scaling without validation plan"
+      - "User Stories lack clear intent/desire format or read as feature descriptions rather than user needs"
+      - "Features feel generic and disconnected from specific persona pain points"
+    
+    1:
+      - "Significant scope creep with over-engineering beyond basic persona needs - includes 3+ forbidden features (monetization, complex social features, content feeds)"
+      - "Missing, untestable, or poorly written Acceptance Criteria - no clear success conditions defined"
+      - "Poor or non-viable AI Matchmaker execution - logic is unclear, approach is impractical, or solution doesn't address core matching need"
+      - "No evidence of Problem-Solution Fit consideration - assumes solution will work without validation"
+      - "Vague User Stories with no clear intent, desire, or benefit articulated"
+      - "Features appear random or copied from other products without connection to defined problem"
+  
+  Problem Definition & User-Centricity: # HIGH_WEIGHT (25%)
+    4:
+      - "Deep empathy for specific campus pain points using concrete, vivid examples (e.g., 'International freshmen face 6-week isolation period before finding study partners due to lack of shared course context' OR 'Non-traditional students over 30 struggle with GroupMe interfaces designed for 18-22 demographic')"
+      - "Problem Statement follows prescribed format EXACTLY: 'When I [specific context], I need to [specific goal], but I struggle because [specific barrier with root cause]'"
+      - "Direct and logical linkage between Persona characteristics (motivations, tech habits, communication challenges) and Problem Statement - every persona attribute connects to a problem dimension"
+      - "Clarity and strong conviction in defining why campus communication is currently fragmented - includes structural/systemic reasons (e.g., decentralized platforms, information silos, trust barriers)"
+      - "Persona includes all three required dimensions with specificity: (1) Motivations beyond academics, (2) Tech habits with platform preferences and usage patterns, (3) Communication challenges with concrete scenarios"
+      - "Evidence of stakeholder perspective (minimum 2 viewpoints: e.g., student + TA, or freshman + senior)"
+    
+    3:
+      - "Good empathy for campus challenges with some specific examples but may lack vivid detail or emotional resonance"
+      - "Problem Statement mostly follows 'When I... I need to... but I struggle because...' format with minor deviations (e.g., missing root cause in barrier section)"
+      - "Visible connection between Persona and Problem Statement - most attributes align but some feel disconnected"
+      - "Clear explanation of communication fragmentation with some detail about causes but may lack depth on systemic issues"
+      - "Persona includes all three dimensions (motivations, tech habits, communication challenges) but one or more lacks depth or specificity"
+      - "Shows understanding of one primary stakeholder perspective with limited multi-stakeholder view"
+    
+    2:
+      - "Generic campus pain points without specific examples (e.g., 'students struggle to connect' without context, demographics, or scenarios)"
+      - "Problem Statement does NOT follow 'When I... I need to... but I struggle because...' format - uses generic problem description"
+      - "Weak or unclear linkage between Persona and Problem Statement - feels like two disconnected sections"
+      - "Vague explanation of why communication is fragmented - lacks structural analysis or root cause thinking"
+      - "Persona missing one of three required dimensions OR all three present but superficial (e.g., 'uses social media' without platform specifics)"
+      - "Single narrow perspective without consideration of different user contexts"
+    
+    1:
+      - "No demonstration of empathy or understanding of campus-specific challenges - could apply to any social platform"
+      - "Generic problem description with no adherence to prescribed format - reads like marketing copy rather than problem analysis"
+      - "No logical connection between Persona and identified problem - persona feels like an afterthought"
+      - "Missing or completely unclear explanation of communication fragmentation - no root cause analysis"
+      - "Poorly defined or absent Persona - missing 2+ required dimensions OR placeholder content (e.g., 'college student who wants to study')"
+      - "No evidence of stakeholder consideration or user-centric thinking"
+  
+  Success Metrics & Measurement: # MEDIUM_WEIGHT (15%)
+    4:
+      - "Quantifiable KPIs explicitly mapped to relevant AARRR stages with minimum 3 stages covered appropriately for MVP (typically Acquisition, Activation, Retention)"
+      - "Metrics include specific, measurable targets with timeframes (e.g., '70% activation rate within first week', '500 MAU by end of semester', '40% w-o-w retention')"
+      - "Clear measurement methodology defined for each KPI (how data will be collected, what tools will be used, what constitutes success)"
+      - "Metrics directly trace to Problem Statement and solution features - clear line of sight from problem → solution → measurement"
+      - "Includes both leading indicators (early signals) and lagging indicators (outcome measures)"
+      - "Realistic and appropriate metrics for MVP stage - avoids premature revenue/referral focus"
+    
+    3:
+      - "Quantifiable KPIs with implied AARRR mapping - covers 2-3 stages but connections may not be explicit"
+      - "Metrics include some specific targets but may lack precision in timeframes or thresholds (e.g., 'high activation rate' instead of '70%')"
+      - "General measurement approach mentioned but lacks detailed methodology"
+      - "Most metrics connect to solution features with some gaps"
+      - "Primarily lagging indicators with few leading indicators"
+      - "Metrics are reasonable for MVP but may include 1-2 premature measures"
+    
+    2:
+      - "Metrics exist but are not quantifiable (e.g., 'user satisfaction', 'engagement') OR no clear AARRR connection"
+      - "Vague targets without specific numbers or timeframes (e.g., 'increase users', 'improve retention')"
+      - "No measurement methodology described - unclear how success will be tracked"
+      - "Weak connection between metrics and problem/solution"
+      - "Only 1-2 metrics provided or metrics focus on wrong stage (e.g., revenue for MVP)"
+      - "Metrics feel generic rather than tailored to this specific product"
+    
+    1:
+      - "Missing success metrics entirely OR completely non-measurable goals (e.g., 'make students happy')"
+      - "No targets, timeframes, or quantification whatsoever"
+      - "No AARRR framework consideration - shows lack of product measurement literacy"
+      - "Metrics completely disconnected from stated problem or solution"
+      - "Demonstrates fundamental misunderstanding of what should be measured at MVP stage"
+  
+  Structure & Documentation: # LOW_WEIGHT (10%)
+    4:
+      - "Inclusion of ALL seven mandatory PRD sections with comprehensive, production-ready detail"
+      - "High-quality, visual User Flow Diagrams that: (a) show happy path AND key error states, (b) use clear visual notation (flowchart symbols, swimlanes, or standard UML), (c) include decision points and user actions, (d) demonstrate end-to-end journey from entry to goal completion"
+      - "Technical Requirements are detailed and implementation-ready, including: data architecture/models, API endpoints with request/response formats, third-party dependencies, AI matching algorithm approach, scalability considerations, security/privacy requirements"
+      - "Scope Definition section explicitly lists In-Scope features (aligned with MVP) and Out-of-Scope features (deferred to future) with clear rationale"
+      - "Professional formatting throughout with clear visual hierarchy, consistent styling, and appropriate use of tables/diagrams"
+      - "Appendices include relevant supporting materials (competitive analysis, research data, technical specifications)"
+    
+    3:
+      - "All seven mandatory PRD sections present with adequate coverage - may lack depth in 1-2 sections"
+      - "User Flow Diagrams are visual and logical, show happy path clearly, use some notation, but may miss error states or edge cases"
+      - "Technical Requirements are present and mostly complete - includes core technical components (data models, APIs, algorithm approach) but missing some implementation details"
+      - "Scope Definition present with In-Scope/Out-of-Scope lists but rationale may be weak or missing"
+      - "Good formatting with consistent structure - professional but may lack visual polish"
+      - "Some supporting materials in appendices but may be incomplete"
+    
+    2:
+      - "Missing 1-2 mandatory PRD sections OR sections present but severely underdeveloped"
+      - "User Flow diagrams are poorly formatted, non-visual (text-based descriptions), or show only partial journey"
+      - "Technical Requirements are vague or incomplete - lists technologies without specifications, or omits critical components like data models or algorithm approach"
+      - "Scope Definition missing OR lists features without In-Scope/Out-of-Scope distinction"
+      - "Inconsistent formatting that impacts readability - mixed styles, poor hierarchy"
+      - "Missing appendices or supporting materials that should be present"
+    
+    1:
+      - "Missing 3+ mandatory PRD sections - document is fundamentally incomplete"
+      - "No User Flow Diagrams OR completely illogical flows that don't represent coherent user journey"
+      - "Technical Requirements are absent, non-technical, or severely inadequate - shows lack of implementation thinking"
+      - "No Scope Definition - unclear what is being built"
+      - "Poor or absent professional formatting - appears rushed or incomplete"
+      - "No supporting materials or appendices"
+  
+  Communication & Presentation: # LOW_WEIGHT (10%)
+    4:
+      - "Professional document quality with exceptional coherence throughout - reads as unified product vision from start to finish"
+      - "Easily understandable by cross-functional teams (Engineering, Design, Data Science, Business) - no jargon barriers, appropriate context provided for each audience"
+      - "Cohesive narrative flow from Executive Summary → Problem Statement → Persona → Solution → Metrics → Technical → Appendices - each section builds logically on previous"
+      - "All seven mandatory PRD sections flow logically and support unified product vision - no contradictions or disconnects"
+      - "Writing is clear, concise, and compelling - appropriate tone for product documentation (professional but not overly formal)"
+      - "Visual elements (diagrams, tables) enhance understanding rather than decorating"
+    
+    3:
+      - "Good professional quality and overall coherence - reads as cohesive document with minor gaps"
+      - "Understandable by most cross-functional stakeholders - may require some clarification for certain audiences"
+      - "Logical narrative flow with minor gaps between sections - transitions could be smoother but overall arc is clear"
+      - "Most sections contribute to unified vision with 1-2 sections feeling somewhat disconnected"
+      - "Writing is clear and professional but may lack conciseness or compelling quality in places"
+      - "Visual elements are present and helpful but may be underutilized"
+    
+    2:
+      - "Disjointed sections that do not flow logically - reads like assembled pieces rather than unified document"
+      - "Difficult for some cross-functional team members to interpret - assumes too much context or uses unclear terminology"
+      - "Narrative gaps between major sections - unclear how sections relate to each other"
+      - "Some sections lack connection to overall product vision - feel like checkbox completion rather than strategic thinking"
+      - "Writing quality is inconsistent - some sections clear, others confusing or verbose"
+      - "Visual elements missing where they would help, or present but poorly integrated"
+    
+    1:
+      - "Severely disjointed with no logical flow between sections - reads as random collection of content"
+      - "Very difficult for cross-functional teams to understand - unclear audience, missing context, heavy jargon"
+      - "No cohesive narrative structure - impossible to follow product story"
+      - "Sections appear completely disconnected from any unified vision - contradictory or incoherent"
+      - "Poor writing quality throughout - confusing, verbose, or unclear"
+      - "Missing essential visual elements or visuals actively confuse rather than clarify"
+
+appendix_a_calibration_samples:
+  exemplar_level_4_problem_statement:
+    text: "When I [international freshman in CS101] need to form a study group for the midterm, I struggle because I don't know anyone in class yet, the GroupMe link shared in Week 1 is expired, and I'm too intimidated to cold-message strangers asking if they want to study together."
+    why_exemplar: "Follows prescribed format exactly, shows deep empathy with specific context (international, CS101, midterm timing), identifies multiple concrete barriers (expired link, social intimidation), demonstrates understanding of root causes"
+  
+  exemplar_level_4_acceptance_criteria:
+    text: "Given a user has selected 'CS 101' and 'Evening availability', When they click 'Find Study Groups', Then the system displays 3-5 matched groups within 2 seconds, ranked by compatibility score (course + time + learning style), with each group showing: (1) member count, (2) meeting time, (3) study focus area."
+    why_exemplar: "Perfect Given/When/Then format, specific measurable outcomes (2 seconds, 3-5 groups), clear success criteria, includes what user sees in result"
+  
+  marginal_level_3_problem_statement:
+    text: "When students join a new course, they need to find study partners, but they struggle because there's no central platform to connect."
+    why_marginal: "Follows format loosely but lacks specificity (which students? which courses?), generic barrier (no central platform doesn't explain WHY that's hard), misses emotional/social dimensions"
+  
+  failing_level_2_acceptance_criteria:
+    text: "User should be able to find study groups easily and see relevant matches."
+    why_failing: "Not testable - what does 'easily' mean? No Given/When/Then format, no measurable outcome, no definition of 'relevant', cannot be objectively verified"
+
+scoring_examples:
+  example_1:
+    scenario: "PRD with perfect MVP scope discipline (4) but generic problem definition (2)"
+    calculation: "(4 × 0.40) + (2 × 0.25) + (3 × 0.15) + (3 × 0.10) + (3 × 0.10) = 1.60 + 0.50 + 0.45 + 0.30 + 0.30 = 3.15 → 79%"
+    interpretation: "Just below 80% threshold due to weak Problem Definition despite strong Solution Quality"
+  
+  example_2:
+    scenario: "PRD with exceptional problem definition (4) but includes scope creep with monetization (2)"
+    calculation: "(2 × 0.40) + (4 × 0.25) + (3 × 0.15) + (4 × 0.10) + (4 × 0.10) = 0.80 + 1.00 + 0.45 + 0.40 + 0.40 = 3.05 → 76%"
+    interpretation: "Capped below 80% despite excellence in other areas - Solution Quality weight (40%) creates ceiling"
+  
+  example_3:
+    scenario: "Balanced strong performance across all criteria (all 3s)"
+    calculation: "(3 × 0.40) + (3 × 0.25) + (3 × 0.15) + (3 × 0.10) + (3 × 0.10) = 1.20 + 0.75 + 0.45 + 0.30 + 0.30 = 3.00 → 75%"
+    interpretation: "Solid B grade with consistent competence but no excellence"
+
+evaluator_checklist:
+  before_scoring:
+    - "Review reference PRD samples in Appendix A to calibrate judgment"
+    - "Read entire PRD once without scoring to understand overall quality and approach"
+    - "Verify all seven mandatory sections are present before detailed evaluation"
+  
+  during_scoring:
+    - "Score each criterion independently before calculating weighted total"
+    - "Use concrete evidence from PRD to justify each score (quote specific text)"
+    - "For HIGH_WEIGHT criteria, double-check score accuracy - these drive final outcome"
+    - "If torn between two levels, default to lower score unless clear evidence supports higher"
+  
+  after_scoring:
+    - "Calculate weighted total using formula: (Solution × 0.40) + (Problem × 0.25) + (Metrics × 0.15) + (Structure × 0.10) + (Communication × 0.10)"
+    - "Verify result makes intuitive sense given overall PRD quality"
+    - "Check if any minimum threshold rules apply (e.g., HIGH_WEIGHT score of 1 caps at 60%)"
+    - "Provide specific, actionable feedback tied to rubric criteria for scores below 4"
