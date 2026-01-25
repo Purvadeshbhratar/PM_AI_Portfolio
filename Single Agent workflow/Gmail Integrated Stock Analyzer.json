@@ -1,0 +1,148 @@
+{
+  "name": "Gmail Integrated Stock Analyzer",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "availableInChat": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d4bcd4f0-6522-444b-9fc1-ac7b4dfc9186",
+      "name": "When chat message received",
+      "webhookId": "0d2860a3-fb76-4f35-80cd-ddd1d3fd19ed"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a professional stock market analyst. Analyze the stock ticker symbol: {{ $json.chatInput }}\n\nProvide a concise analysis in the following format:\n\n**Stock: [TICKER SYMBOL]**\n**Current Context:** [Brief 1-2 sentence market context]\n\n**Technical Analysis:**\n- Price trend (bullish/bearish/sideways)\n- Key support and resistance levels\n- Moving average signals\n- Volume analysis\n\n**Fundamental Highlights:**\n- Recent earnings/revenue trends\n- Key financial metrics (P/E, debt ratios)\n- Industry position and competitive advantages\n- Recent news impact\n\n**Recommendation:**\n- **Action:** BUY / HOLD / SELL\n- **Confidence Level:** High/Medium/Low\n- **Price Target:** [If applicable]\n- **Stop Loss:** [If applicable]\n- **Time Horizon:** Short-term (1-3 months) / Medium-term (3-12 months)\n\n**Key Risks:**\n- [List 2-3 main risks to watch]\n\n**Rationale:**\n[2-3 sentences explaining the recommendation]\n\nKeep the analysis under 300 words total. Focus on actionable insights for retail investors. Keep each section distinct and each pointers in bullet point for more clarity\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "4db78075-3363-4ef3-bac0-fbae6142df37",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        80,
+        208
+      ],
+      "id": "b721a0ae-9f9d-4274-9f43-918a4d9720a6",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "bsCSqjnpkpQNoO5V",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        208
+      ],
+      "id": "c51dc095-931b-47eb-9d91-761145d89a5e",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "sendTo": "purvadeshbhratar18@gmail.com",
+        "subject": "=Stock Analysis of {{ $('When chat message received').item.json.chatInput }}",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        560,
+        0
+      ],
+      "id": "568cd457-cc73-4bfc-8a93-8d2265152f6c",
+      "name": "Send a message",
+      "webhookId": "b8c2bb42-48bd-4508-b85f-9168cff5bdb2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "rY40v328L7ouNqNe",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "97bbb663-89fd-4cd3-bd13-05c1f6c9e654",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0603c90153d887b4ef3373f413750dcc2d44e994a0fc5b177de170be4281e847"
+  },
+  "id": "FRbHrtg3lH6wi2CvqrGFK",
+  "tags": []
+}
