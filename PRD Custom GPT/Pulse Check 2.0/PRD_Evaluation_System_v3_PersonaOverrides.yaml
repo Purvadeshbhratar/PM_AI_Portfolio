@@ -1,0 +1,76 @@
+evaluation_context:
+  evaluator_persona: null  # leadership | hiring_manager | engineering | pm_peer | qa_risk | ai_data
+  decision_authority: null # approve | block | recommend | advisory
+  purpose: null
+  product_stage: null
+  grading_criteria_provided: false
+
+persona_overrides:
+
+  leadership:
+    priority_shift:
+      strategic_clarity: very_high
+      execution_readiness: medium
+      pm_craft: low
+      risk_and_quality: high
+    decision_rules:
+      - if: strategic_clarity < 6
+        decision: reject
+      - if: business_alignment is unclear
+        decision: revise
+    tolerance:
+      vague_execution: high
+      missing_metrics: medium
+
+  hiring_manager:
+    priority_shift:
+      pm_craft: very_high
+      assumptions: high
+      clarity_of_thinking: high
+    decision_rules:
+      - if: implicit_assumptions_count > 3
+        decision: revise
+      - if: tradeoffs_missing == true
+        decision: reject
+    tolerance:
+      missing_data: medium
+      unclear_logic: low
+
+  engineering:
+    priority_shift:
+      execution_readiness: very_high
+      risk_and_quality: very_high
+      strategic_clarity: medium
+    decision_rules:
+      - if: scope_is_ambiguous == true
+        decision: reject
+      - if: dependencies_unknown == true
+        decision: revise
+    tolerance:
+      vague_strategy: high
+      vague_scope: zero
+
+default_dimensions:
+  strategic_clarity:
+    criteria:
+      - problem_definition
+      - user_outcome_clarity
+      - business_alignment
+
+  pm_craft:
+    criteria:
+      - assumptions_explicitness
+      - tradeoff_articulation
+      - success_metrics_quality
+
+  execution_readiness:
+    criteria:
+      - scope_clarity
+      - dependencies_identified
+      - feasibility
+
+  risk_and_quality:
+    criteria:
+      - edge_cases
+      - failure_modes
+      - reversibility

@@ -1,0 +1,58 @@
+evaluation_context:
+  evaluator_persona: null
+  decision_authority: null
+  purpose: null
+  product_stage: null
+  grading_criteria_provided: false
+
+scoring_mode:
+  logic:
+    - if: grading_criteria_provided == true
+      action: use_custom_criteria_only
+    - if: grading_criteria_provided == false
+      action: use_default_pm_yaml
+
+evaluation_dimensions:
+  strategic_clarity:
+    weight_by_stage:
+      discovery: 0.35
+      mvp: 0.30
+      scale: 0.25
+      compliance: 0.20
+    criteria:
+      - problem_definition
+      - user_outcome_clarity
+      - business_alignment
+
+  pm_craft:
+    weight_by_stage:
+      discovery: 0.25
+      mvp: 0.30
+      scale: 0.25
+      compliance: 0.20
+    criteria:
+      - assumptions_explicitness
+      - success_metrics_quality
+      - tradeoff_articulation
+
+  execution_readiness:
+    weight_by_stage:
+      discovery: 0.15
+      mvp: 0.20
+      scale: 0.30
+      compliance: 0.30
+    criteria:
+      - scope_clarity
+      - dependencies_identified
+      - delivery_feasibility
+
+  risk_and_quality:
+    weight_by_stage:
+      discovery: 0.15
+      mvp: 0.20
+      scale: 0.20
+      compliance: 0.30
+    criteria:
+      - edge_cases
+      - failure_modes
+      - reversibility
