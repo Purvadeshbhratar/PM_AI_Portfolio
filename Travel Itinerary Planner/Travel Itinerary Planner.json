@@ -1,0 +1,120 @@
+{
+  "name": "Travel Itinerary Planner",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "travel-itinerary",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "7454b165-334a-4197-bba4-0eb98cf41094",
+      "name": "Webhook",
+      "webhookId": "f0fae38a-f6ce-471c-b3d8-356377b2cd4c"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a professional travel planner. Create a detailed, day-by-day itinerary based on these details:\n\nLocation: {{$json.body.location}}\nTravel Dates: {{$json.body.dates}}\nTravel Type: {{$json.body.travelType}}\n\nPlease create a comprehensive itinerary that includes:\n- Daily schedule with morning, afternoon, and evening activities\n- Specific restaurant recommendations with cuisine types\n- Must-see attractions with brief descriptions\n- Practical tips for this type of traveler\n- Estimated costs where relevant\n\nFormat the response as a well-structured, easy-to-read itinerary with clear day-by-day sections. Make it engaging and personalized for {{$json.body.travelType}} travelers. Use line breaks and formatting to make it easy to read.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "c705f5cb-18d0-4fee-8e56-9f392b1ce91f",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        80,
+        208
+      ],
+      "id": "025202e3-9cef-49f5-9467-d76f73426a6a",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "xUnipAWRY50lJUqY",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "= {\n  \"success\": true,\n \"itinerary\": {{ $json.output }}\n}\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        560,
+        0
+      ],
+      "id": "da55f750-47e2-4869-b1a2-d540e012511e",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "74f204f6-6c38-4ace-8898-09ae06a48f49",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "52bba85e1f15e4cd8d1ced74ebddffa1934a16bd9a6f93bbb35ebd86efaf33d8"
+  },
+  "id": "qSTpEZFsWL15R71DLTAvF",
+  "tags": []
+}
