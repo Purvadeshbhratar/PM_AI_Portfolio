@@ -1,0 +1,181 @@
+{
+  "name": "Upload Candidates Resume",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "upload-resume-pdf",
+        "options": {}
+      },
+      "id": "0e5899d3-1c94-4dac-83af-48665e3361bb",
+      "name": "Webhook - Receive PDF from Lovable",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -480,
+        -32
+      ],
+      "webhookId": "pdf-upload-webhook"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        176,
+        -48
+      ],
+      "id": "3488aac8-4b34-4d04-9c24-8c3014fa537f",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  filename: $input.item.binary.file.fileName\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        64
+      ],
+      "id": "6b49fbdc-3781-46a3-85f9-859eea51c60e",
+      "name": "Get FileName"
+    },
+    {
+      "parameters": {
+        "useCustomSchema": true,
+        "tableId": "pdf_resumes",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "file_name",
+              "fieldValue": "={{ $json.filename }}"
+            },
+            {
+              "fieldId": "storage_path",
+              "fieldValue": "=candidates-resumes/{{ $json.filename }}"
+            },
+            {
+              "fieldId": "public_url",
+              "fieldValue": "=https://jhnmrhhvzwymsvfhxtok.supabase.co/storage/v1/object/public/candidates-resumes/{{ $json.filename }}"
+            },
+            {
+              "fieldId": "job_id",
+              "fieldValue": "={{ $('Webhook - Receive PDF from Lovable').item.json.body.jobId }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "pending"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        400,
+        -48
+      ],
+      "id": "04770001-bb34-423c-9c07-3148b44f1b25",
+      "name": "Resume Uploaded",
+      "credentials": {
+        "supabaseApi": {
+          "id": "f3s2apylq3bc9yk2",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "candidates-resumes",
+        "binaryPropertyName": "file",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        -112
+      ],
+      "id": "4fea6507-98ce-4cbe-8644-21fcaae344a7",
+      "name": "Upload Resumes to S3 Storage",
+      "credentials": {
+        "s3": {
+          "id": "T6caOcJT3zGAhxo5",
+          "name": "S3 account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook - Receive PDF from Lovable": {
+      "main": [
+        [
+          {
+            "node": "Get FileName",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Upload Resumes to S3 Storage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Resume Uploaded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get FileName": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Upload Resumes to S3 Storage": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "55cf1a7b-3551-424b-be4a-ac5e8c428846",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "52bba85e1f15e4cd8d1ced74ebddffa1934a16bd9a6f93bbb35ebd86efaf33d8"
+  },
+  "id": "S-1BF4A8MAS6kFqjeSQ6F",
+  "tags": []
+}

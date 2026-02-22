@@ -1,0 +1,228 @@
+{
+  "name": "Send Email to Shorlisted Candidates",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "candidate-status",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1392,
+        -192
+      ],
+      "id": "878d8830-aa8d-457f-87c9-7efe6c75c710",
+      "name": "Webhook trigger on Shortlist",
+      "webhookId": "ce4e297b-8170-43df-8fd0-aa4a53226bcf"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "candidates",
+          "mode": "list",
+          "cachedResultName": "candidates"
+        },
+        "where": {
+          "values": [
+            {
+              "column": "id",
+              "value": "={{ $json.body.candidate_id }}"
+            },
+            {
+              "column": "status",
+              "value": "=Shortlist"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1184,
+        -192
+      ],
+      "id": "06bd9344-8f7d-4b4f-8be2-fdd5b1114eac",
+      "name": "Get Candidate Details",
+      "credentials": {
+        "postgres": {
+          "id": "aqkPQvOWrwzE5kKr",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "jobs",
+          "mode": "list",
+          "cachedResultName": "jobs"
+        },
+        "where": {
+          "values": [
+            {
+              "column": "id",
+              "value": "={{ $json.job_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -976,
+        -192
+      ],
+      "id": "ee8b218d-b709-4229-ab72-76b635dae269",
+      "name": "Get Job Details",
+      "credentials": {
+        "postgres": {
+          "id": "aqkPQvOWrwzE5kKr",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "profiles",
+          "mode": "list",
+          "cachedResultName": "profiles"
+        },
+        "where": {
+          "values": [
+            {
+              "column": "user_id",
+              "value": "={{ $json.user_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -784,
+        -192
+      ],
+      "id": "ebf2cc98-9429-4685-a0ef-0bb43d364574",
+      "name": "Get HR Details",
+      "credentials": {
+        "postgres": {
+          "id": "aqkPQvOWrwzE5kKr",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Get Candidate Details').item.json.email }}",
+        "subject": "=Congratulations — You’ve Been Shortlisted for the {{ $('Get Job Details').item.json.title }} Role",
+        "emailType": "text",
+        "message": "=Dear {{ $('Get Candidate Details').item.json.name }}, \n\nWe’re pleased to inform you that you’ve been shortlisted for the {{ $('Get Job Details').item.json.title }} position at XYZ Company.  \n\nThank you for taking the time to apply and for sharing your profile with us. After reviewing your application, we believe your skills and experience align well with what we’re looking for.  \n\nOur team will be reaching out shortly with the next steps in the hiring process, including interview details.  \n\nIf you have any questions in the meantime, feel free to reply to this email. \n\nCongratulations, and we look forward to connecting with you soon!  \n\nBest regards, \n{{ $json.full_name }}\nHiring Manager(HR)\nXYZ Company",
+        "options": {
+          "ccList": "={{ $json.email }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -592,
+        -192
+      ],
+      "id": "d3ef60be-a5fd-4afe-a1d3-1206fdb6940d",
+      "name": "Send shortlisted message",
+      "webhookId": "95a941c5-a499-4a92-86a5-d51c7064c61b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "MZWy0QXRUM6P9IC6",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook trigger on Shortlist": {
+      "main": [
+        [
+          {
+            "node": "Get Candidate Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Candidate Details": {
+      "main": [
+        [
+          {
+            "node": "Get Job Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Job Details": {
+      "main": [
+        [
+          {
+            "node": "Get HR Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get HR Details": {
+      "main": [
+        [
+          {
+            "node": "Send shortlisted message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "657eb60b-6d1b-4a1e-90c8-cab85ad53a5d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "52bba85e1f15e4cd8d1ced74ebddffa1934a16bd9a6f93bbb35ebd86efaf33d8"
+  },
+  "id": "XOOMbn4LYOD-tAeyYtcfk",
+  "tags": []
+}

@@ -1,0 +1,347 @@
+{
+  "name": "Schedule Interview Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "schedule-interview",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -480,
+        -48
+      ],
+      "id": "c5affd67-bcbc-47ae-a8a9-45c25fe9ec8c",
+      "name": "Webhook trigger Schedule Interview",
+      "webhookId": "a7b373a2-9937-43d1-a7ee-5367ab9327c6"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "candidates",
+          "mode": "list",
+          "cachedResultName": "candidates"
+        },
+        "where": {
+          "values": [
+            {
+              "column": "id",
+              "value": "={{ $json.body.candidate_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -304,
+        -48
+      ],
+      "id": "5eafb0b3-1664-4ca5-86c4-7e4c0163f548",
+      "name": "Get Candidate Details",
+      "credentials": {
+        "postgres": {
+          "id": "aqkPQvOWrwzE5kKr",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "jobs",
+          "mode": "list",
+          "cachedResultName": "jobs"
+        },
+        "where": {
+          "values": [
+            {
+              "column": "id",
+              "value": "={{ $json.job_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -128,
+        -48
+      ],
+      "id": "01d006f5-8a90-4c7d-abb9-952954f16ec0",
+      "name": "Get Job Details",
+      "credentials": {
+        "postgres": {
+          "id": "aqkPQvOWrwzE5kKr",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "profiles",
+          "mode": "list",
+          "cachedResultName": "profiles"
+        },
+        "where": {
+          "values": [
+            {
+              "column": "user_id",
+              "value": "={{ $json.user_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        32,
+        -48
+      ],
+      "id": "c1f19f72-c825-48e2-b9d1-3e69ed940869",
+      "name": "Get HR Details",
+      "credentials": {
+        "postgres": {
+          "id": "aqkPQvOWrwzE5kKr",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Get Candidate Details').item.json.email }}",
+        "subject": "=Interview Scheduled — {{ $('Get Job Details').item.json.title }} at XYZ Company",
+        "emailType": "text",
+        "message": "=Dear {{ $('Get Candidate Details').item.json.name }},  \n\nWe’re happy to confirm your interview for the position '{{ $('Get Job Details').item.json.title }}' at XYZ Company.  \n\nA calendar invitation has been sent to this email address with the following details:  \n\n📅 Date: {{ $('Webhook trigger Schedule Interview').item.json.body.date }}\n⏰ Time: {{ $('Webhook trigger Schedule Interview').item.json.body.time }}\n📍 Mode: Online\n🔗 Meeting Link / Location:  {{ $('Webhook trigger Schedule Interview').item.json.body.meeting_link }} \nPlease accept the calendar invite to confirm your availability.  \n\nIf you need to reschedule or have any questions beforehand, feel free to reply to this email.  \n\nWe look forward to meeting you.  \n\nBest regards, \n{{ $json.full_name }}\nHiring Manager(HR)\nXYZ Company",
+        "options": {
+          "ccList": "={{ $json.email }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        -48
+      ],
+      "id": "2db90358-da4c-4e9c-8912-b5ec9635571d",
+      "name": "Send Interview Invite",
+      "webhookId": "0cb1635f-d9fb-4b0f-a0b5-8d2c64f06c3d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "MZWy0QXRUM6P9IC6",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "interview",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "candidate_id",
+              "fieldValue": "={{ $('Get Candidate Details').item.json.id }}"
+            },
+            {
+              "fieldId": "candidate_name",
+              "fieldValue": "={{ $('Get Candidate Details').item.json.name }}"
+            },
+            {
+              "fieldId": "job_id",
+              "fieldValue": "={{ $('Get Candidate Details').item.json.job_id }}"
+            },
+            {
+              "fieldId": "job_title",
+              "fieldValue": "={{ $('Get Job Details').item.json.title }}"
+            },
+            {
+              "fieldId": "interviewer_id",
+              "fieldValue": "={{ $('Get HR Details').item.json.user_id }}"
+            },
+            {
+              "fieldId": "interviewer_name",
+              "fieldValue": "={{ $('Get HR Details').item.json.full_name }}"
+            },
+            {
+              "fieldId": "date",
+              "fieldValue": "={{ $('Webhook trigger Schedule Interview').item.json.body.date }}"
+            },
+            {
+              "fieldId": "time",
+              "fieldValue": "={{ $('Webhook trigger Schedule Interview').item.json.body.time }}"
+            },
+            {
+              "fieldId": "meeting_link",
+              "fieldValue": "={{ $('Webhook trigger Schedule Interview').item.json.body.meeting_link }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        400,
+        -48
+      ],
+      "id": "d54616e5-c64d-4f2d-8b4f-6a58073e208e",
+      "name": "Update Interview Details",
+      "credentials": {
+        "supabaseApi": {
+          "id": "f3s2apylq3bc9yk2",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "candidates",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Webhook trigger Schedule Interview').item.json.body.candidate_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "Scheduled"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        592,
+        -48
+      ],
+      "id": "b916d53d-ff14-4c01-952e-b5740856e12a",
+      "name": "Interview Scheduled",
+      "credentials": {
+        "supabaseApi": {
+          "id": "f3s2apylq3bc9yk2",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook trigger Schedule Interview": {
+      "main": [
+        [
+          {
+            "node": "Get Candidate Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Candidate Details": {
+      "main": [
+        [
+          {
+            "node": "Get Job Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Job Details": {
+      "main": [
+        [
+          {
+            "node": "Get HR Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get HR Details": {
+      "main": [
+        [
+          {
+            "node": "Send Interview Invite",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Interview Invite": {
+      "main": [
+        [
+          {
+            "node": "Update Interview Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Interview Details": {
+      "main": [
+        [
+          {
+            "node": "Interview Scheduled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Interview Scheduled": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "06031730-dace-4002-ab27-1f252d07657d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "52bba85e1f15e4cd8d1ced74ebddffa1934a16bd9a6f93bbb35ebd86efaf33d8"
+  },
+  "id": "bleOG0ickbbLZO7dEeHKn",
+  "tags": []
+}

@@ -1,0 +1,318 @@
+{
+  "name": "Scoring Agent Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -576,
+        -160
+      ],
+      "id": "6ddb2ae6-c7e9-4546-812d-9e932181d5e5",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are the Scoring Agent for an AI-assisted hiring system.\n\nYour job is to generate a fair, explainable match score between a candidate resume and a job description using a hybrid scoring process.\n\nYou do NOT reject candidates.\nYou do NOT make hiring decisions.\nYou only generate a score and structured evaluation signals.\nHumans always make final decisions.\n\nINPUT\n\nYou receive:\n\nStructured resume data (JSON)\n{{ $json.experience }},{{ $json.skills }},{{ $json.education }},{{ $json.work_history }},\n\nJob requirements (skills + minimum experience + role expectations if provided)\n{{ $json.title }},{{ $json.location }},{{ $json.type }},\n{{ $json.description }},{{ $json.requirements }},\n{{ $json.years_of_exp }}\n\nOBJECTIVE\n\nGenerate a conservative, consistent match score from 0 to 100.\n\nThe score represents how well the resume matches the job requirements using a multi-step hybrid evaluation system.\n\nHYBRID SCORING PROCESS\nStep 1: Rules Engine (≈30% Weight)\n\nApply strict, deterministic logic:\n\nExact skill matches\n\nMissing required skills\n\nMinimum experience threshold comparison\n\nYears of experience gap calculation\n\nNo inference allowed.\nNo semantic interpretation.\nOnly literal matching.\n\nProduce a rules-based score (0–100).\n\nStep 2: LLM Semantic Scoring (≈60% Weight)\n\nContextual evaluation using only provided data:\n\nRole fit\n\nCareer trajectory relevance\n\nDepth and quality of experience\n\nResponsibility alignment with role expectations\n\nConsistency between resume experience and job scope\n\nBe conservative.\nDo NOT assume seniority.\nDo NOT invent skills.\n\nProduce a semantic score (0–100).\n\nStep 3: Resume ↔ JD Semantic Matching (≈10% Weight)\n\nPure similarity evaluation between resume and job description:\n\nSemantic overlap of responsibilities\n\nAlignment of terminology and concepts\n\nFunctional relevance of past experience to JD tasks\n\nThis step measures how closely the resume content mirrors the JD intent, independent of skills counting or career trajectory.\n\nIf job description is vague or incomplete, reduce this score.\n\nProduce a semantic matching score (0–100).\n\nFinal Score Calculation\n\nFinal Score =\n(0.30 × Rules Engine Score) +\n(0.60 × LLM Semantic Score) +\n(0.10 × Resume–JD Semantic Match Score)\n\nRound to nearest integer (0–100).\n\nDo NOT inflate scores.\n\nRULES\n\nOnly use explicitly provided data.\nNever invent skills, experience, or achievements.\nMissing required data lowers score.\nIf experience requirement not clearly met, apply penalty.\nIf job expectations are vague, reduce semantic confidence.\n\nBe consistent and explainable.\n\nDo not optimize for high scores.\n\nOUTPUT FORMAT (STRICT JSON ONLY)\n{\n  \"candidate_name\": \"\",\n  \"score\": number,\n  \"strengths\": [\n    {\n      string | null\n    }\n  ],\n  \"gaps\": [\n    {\n      string | null\n    }\n  ],\n  \"assessment_text\": \"\"\n}\n\nQUALITY BAR\n\nBe conservative.\nBe structured.\nBe explainable.\nBe consistent.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -416,
+        -160
+      ],
+      "id": "5ae90e86-63a0-4c6e-8916-269e62235ccd",
+      "name": "Scoring Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -416,
+        32
+      ],
+      "id": "54d9eb8c-289c-44f4-82ac-54a6a7929411",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "lgtJU7sez0zfPkHa",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "candidate-created",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1104,
+        -160
+      ],
+      "id": "8749e6ea-5a6a-4e9c-809b-6332c4713080",
+      "name": "Webhook trigger on Candidated created",
+      "webhookId": "c3b38412-6466-4432-89e7-a2dec080b9ed"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "candidates",
+          "mode": "list",
+          "cachedResultName": "candidates"
+        },
+        "where": {
+          "values": [
+            {
+              "column": "id",
+              "value": "={{ $json.body.candidate_id }}"
+            },
+            {
+              "column": "status",
+              "condition": "IS NULL"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -832,
+        -240
+      ],
+      "id": "d1ea59b3-8dd4-4d3c-b5e2-416a07810400",
+      "name": "Get Candidate Details",
+      "credentials": {
+        "postgres": {
+          "id": "aqkPQvOWrwzE5kKr",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "jobs",
+          "mode": "list",
+          "cachedResultName": "jobs"
+        },
+        "where": {
+          "values": [
+            {
+              "column": "id",
+              "value": "={{ $json.body.job_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -832,
+        -64
+      ],
+      "id": "c75f60ef-642b-4be2-8268-afd24eb2bb10",
+      "name": "Get Job Details",
+      "credentials": {
+        "postgres": {
+          "id": "aqkPQvOWrwzE5kKr",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const outputString = $input.item.json.output;\nconst cleanedJson = outputString.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\nreturn JSON.parse(cleanedJson);"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        -160
+      ],
+      "id": "71c12fb4-056e-48bc-8256-0004df22e07b",
+      "name": "Scoring Agent Output Parser"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "candidates",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Get Candidate Details').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "match_score",
+              "fieldValue": "={{ $json.score }}"
+            },
+            {
+              "fieldId": "strengths",
+              "fieldValue": "={{ $json.strengths.join('\\n') }}"
+            },
+            {
+              "fieldId": "gaps",
+              "fieldValue": "={{ $json.gaps.join('\\n') }}"
+            },
+            {
+              "fieldId": "assessment",
+              "fieldValue": "={{ $json.assessment_text }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "New"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        64,
+        -160
+      ],
+      "id": "4ad55395-3e38-42f4-a3cf-b81002f0b160",
+      "name": "Update Scoring Details",
+      "credentials": {
+        "supabaseApi": {
+          "id": "f3s2apylq3bc9yk2",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Scoring Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Scoring Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scoring Agent": {
+      "main": [
+        [
+          {
+            "node": "Scoring Agent Output Parser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook trigger on Candidated created": {
+      "main": [
+        [
+          {
+            "node": "Get Candidate Details",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Job Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Candidate Details": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Job Details": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Scoring Agent Output Parser": {
+      "main": [
+        [
+          {
+            "node": "Update Scoring Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "ed395489-d531-4529-be31-86f62c793145",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "52bba85e1f15e4cd8d1ced74ebddffa1934a16bd9a6f93bbb35ebd86efaf33d8"
+  },
+  "id": "tFy6Wbg3SIWe3qvJDOPXp",
+  "tags": []
+}

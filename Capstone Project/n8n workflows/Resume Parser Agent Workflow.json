@@ -1,0 +1,361 @@
+{
+  "name": "Resume Parser Agent Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "id": "ef1fef07-9475-49dc-9b5a-5aadb31201f4",
+      "name": "Extract Text from PDF",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        2928,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are Resume Parsing Agent for an AI-assisted hiring system.\nYour sole responsibility is to read a candidate resume (PDF converted to text)\nand extract structured hiring-relevant information.\nYou do NOT evaluate candidates.\nYou do NOT score candidates.\nYou do NOT provide opinions.\nYou only extract facts explicitly present in the resume.\nIf information is missing or unclear, return null for that field.\nNever guess.\n----------------------------\nOBJECTIVE\n----------------------------\nConvert unstructured resume text into clean structured JSON for downstream scoring.\nAccuracy is more important than completeness.\n----------------------------\nINPUT\n----------------------------\nYou receive:\n1. Resume text ({{ $json.text }})\n2. Optional job context (skills list)\n----------------------------\nOUTPUT FORMAT (STRICT JSON ONLY)\n----------------------------\nReturn exactly this schema:\n{\n  \"job_id\": {{ $('Download Resumes').item.json.job_id }},\n  \"resume_url\":{{ $('Download Resumes').item.json.public_url }},\n  \"candidate_name\": string | null,\n  \"email\": string | null,\n  \"phone\": string | null,\n  \"total_years_experience\": number | null,\n  \"skills\": [\n    {\n      \"skill\": string,\n      \"evidence\": string\n    }\n  ],\n  \"top_skills\": [\n    {\n      string | null\n    }\n  ],\n  \"work_history\": [\n    {\n      \"company\": string | null,\n      \"title\": string | null,\n      \"start_date\": string | null,\n      \"end_date\": string | null\n    }\n  ],\n  \"education\": [\n    {\n      \"degree\": string | null,\n      \"institution\": string | null,\n      \"year\": string | null\n    }\n  ],\n  \"Last Company\": string | null,\n}\n----------------------------\nRULES\n----------------------------\n1. Extract only what exists in the resume.\n2. Never infer seniority or skill strength.\n3. Never invent dates or companies.\n4. Skills must appear explicitly in resume.\n5. Work history must be ordered most recent first.\n6. total_years_experience must be calculated from employment dates if available.\n7. Limit top_skills to maximum 5.\n8. For each skill, provide short evidence snippet from resume.\n9. Normalize phone numbers and emails.\n10. Return valid JSON only. No markdown. No commentary.\n----------------------------\nEXPERIENCE CALCULATION LOGIC\n----------------------------\nIf multiple roles exist:\n- Sum distinct employment periods.\n- Ignore overlapping months.\n- Round to nearest whole year.\nIf dates missing:\n- Return null.\n----------------------------\nQUALITY BAR\n----------------------------\nThis output feeds automated scoring.\nPrecision is critical.\nIf uncertain, leave null.\nNever hallucinate.\n\n----------------------------\nFINAL INSTRUCTION\n----------------------------\nReturn JSON only.\nDo not include explanations.\nDo not include extra fields.",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        3088,
+        432
+      ],
+      "id": "096eaef3-18aa-4ecc-802c-e70dd9ffa195",
+      "name": "Resume Parser Agent"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "pdf-resume-created",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        2400,
+        432
+      ],
+      "id": "4e04c4f1-d5d4-4435-91be-feedbc78b546",
+      "name": "Webhook trigger on resume upload",
+      "webhookId": "9de70562-348c-48c0-a215-78c92dc6b735"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "pdf_resumes",
+          "mode": "list",
+          "cachedResultName": "pdf_resumes"
+        },
+        "where": {
+          "values": [
+            {
+              "column": "status",
+              "value": "pending"
+            },
+            {
+              "column": "id",
+              "value": "={{ $json.body.resume_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2576,
+        432
+      ],
+      "id": "f840fe45-8b88-4324-bfb1-9db4c39168e4",
+      "name": "Get Resume Details",
+      "credentials": {
+        "postgres": {
+          "id": "aqkPQvOWrwzE5kKr",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "bucketName": "candidates-resumes",
+        "fileKey": "={{ $json.file_name }}"
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        2752,
+        432
+      ],
+      "id": "71140700-fd56-45f9-99e0-5b7ea461ee60",
+      "name": "Download Resumes",
+      "credentials": {
+        "s3": {
+          "id": "T6caOcJT3zGAhxo5",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "candidates",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "name",
+              "fieldValue": "={{ $json.candidate_name }}"
+            },
+            {
+              "fieldId": "email",
+              "fieldValue": "={{ $json.email }}"
+            },
+            {
+              "fieldId": "phone",
+              "fieldValue": "={{ $json.phone }}"
+            },
+            {
+              "fieldId": "experience",
+              "fieldValue": "={{ $json.total_years_experience }}"
+            },
+            {
+              "fieldId": "skills",
+              "fieldValue": "={{ $json.top_skills }}"
+            },
+            {
+              "fieldId": "education",
+              "fieldValue": "={{ $json.education }}"
+            },
+            {
+              "fieldId": "resume_url",
+              "fieldValue": "={{ $json.resume_url }}"
+            },
+            {
+              "fieldId": "job_id",
+              "fieldValue": "={{ $json.job_id }}"
+            },
+            {
+              "fieldId": "work_history",
+              "fieldValue": "={{ $json.work_history }}"
+            },
+            {
+              "fieldId": "last_company",
+              "fieldValue": "={{ $json['Last Company'] }}"
+            },
+            {
+              "fieldId": "top_skills",
+              "fieldValue": "={{ $json.top_skills.join(', ') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        3552,
+        432
+      ],
+      "id": "8db67b5b-0bf4-401c-9fa9-189d71ab0498",
+      "name": "Candidate Created",
+      "credentials": {
+        "supabaseApi": {
+          "id": "f3s2apylq3bc9yk2",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "pdf_resumes",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "pending"
+            },
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Webhook trigger on resume upload').item.json.body.resume_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "processed"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        3712,
+        432
+      ],
+      "id": "ecdebd6f-a611-4e54-92d9-88f83a9179cf",
+      "name": "Resume Processed",
+      "credentials": {
+        "supabaseApi": {
+          "id": "f3s2apylq3bc9yk2",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        3088,
+        640
+      ],
+      "id": "08c39b56-fdeb-4d92-b82e-93134768d6ca",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "lgtJU7sez0zfPkHa",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const raw = $json.output;\nconst cleaned = raw.replace(/```json\\n?/g, '').replace(/```/g, '').trim();\nconst parsed = JSON.parse(cleaned);\nreturn { json: parsed };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3376,
+        432
+      ],
+      "id": "a16cc407-2ca6-40c1-a4d2-b760616a776d",
+      "name": "Resume Agent Output Parser"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Extract Text from PDF": {
+      "main": [
+        [
+          {
+            "node": "Resume Parser Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resume Parser Agent": {
+      "main": [
+        [
+          {
+            "node": "Resume Agent Output Parser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook trigger on resume upload": {
+      "main": [
+        [
+          {
+            "node": "Get Resume Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Resume Details": {
+      "main": [
+        [
+          {
+            "node": "Download Resumes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Resumes": {
+      "main": [
+        [
+          {
+            "node": "Extract Text from PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Candidate Created": {
+      "main": [
+        [
+          {
+            "node": "Resume Processed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Resume Parser Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resume Agent Output Parser": {
+      "main": [
+        [
+          {
+            "node": "Candidate Created",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "6f6745c1-afa5-4097-ba91-1ae27fd43972",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "52bba85e1f15e4cd8d1ced74ebddffa1934a16bd9a6f93bbb35ebd86efaf33d8"
+  },
+  "id": "5wEX2u-q9Fr8xj9LRc7d9",
+  "tags": []
+}
