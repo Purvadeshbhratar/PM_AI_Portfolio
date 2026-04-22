@@ -40,7 +40,7 @@ git push -u origin main
 
 Connect with Purva via LinkedIn or email
 
-- LinkedIn : www.linkedin.com/in/purva-deshbhratar-713080286
+- LinkedIn : https://www.linkedin.com/in/purvadeshbhratar
 - Email : purvadeshbhratar18@gmail.com
 
 ---
